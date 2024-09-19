@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: java-app-otel-service
+  labels:
+    app: java-app-otel
+spec:
+  selector:
+    app: java-app-otel
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

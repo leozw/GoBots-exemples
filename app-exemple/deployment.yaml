@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-app-otel-deployment
+  labels:
+    app: java-app-otel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-app-otel
+  template:
+    metadata:
+    # You need this annotation for instrument your application
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "true"
+      labels:
+        app: java-app-otel
+    spec:
+      containers:
+        - name: java-app-otel
+          image: leonardozwirtes/pet-clinic:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+        # You need this envs for instrument your application    
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: "java-app-otel"
+            - name: OTEL_TRACES_EXPORTER
+              value: "otlp"
+            - name: OTEL_METRICS_EXPORTER
+              value: "otlp"
+            - name: OTEL_LOGS_EXPORTER
+              value: "otlp" 
+            - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+              value: "http://opentelemetrycollector.monitoring.svc.cluster.local:4318/v1/traces"
+            - name: OTEL_EXPORTER_OTLP_LOGS_ENDPOINT
+              value: "http://opentelemetrycollector.monitoring.svc.cluster.local:4318/v1/logs"              
+            - name: OTEL_EXPORTER_OTLP_METRICS_ENDPOINT
+              value: "http://opentelemetrycollector.monitoring.svc.cluster.local:4318/v1/metrics"
